@@ -1,0 +1,338 @@
+{
+  "version": "1.0",
+  "appName": "Kijani Finance",
+  "tagline": "Modern banking for Kenya",
+  "theme": {
+    "colors": {
+      "primary": "#1B8A5A",
+      "secondary": "#2ECC71",
+      "background": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "error": "#E53E3E",
+      "success": "#38A169",
+      "warning": "#D69E2E",
+      "textPrimary": "#1A202C",
+      "textSecondary": "#718096",
+      "textDisabled": "#CBD5E0",
+      "cardStart": "#1B8A5A",
+      "cardEnd": "#27AE60"
+    },
+    "fontFamily": "Inter",
+    "darkMode": false
+  },
+  "navigation": {
+    "authScreen": "login",
+    "initialScreen": "home",
+    "tabs": [
+      { "screenId": "home",     "label": "Home",     "icon": "home" },
+      { "screenId": "payments", "label": "Payments", "icon": "send" },
+      { "screenId": "history",  "label": "History",  "icon": "receipt" },
+      { "screenId": "profile",  "label": "Profile",  "icon": "person" }
+    ]
+  },
+  "screens": {
+    "login": {
+      "id": "login",
+      "showAppBar": false,
+      "components": [
+        {
+          "type": "scroll_view",
+          "props": { "padding": 24 },
+          "children": [
+            { "type": "spacer", "props": { "height": 48 } },
+            {
+              "type": "center",
+              "children": [
+                { "type": "icon_box", "props": { "icon": "wallet", "size": 72, "iconSize": 38 } },
+                { "type": "spacer", "props": { "height": 16 } },
+                { "type": "text", "props": { "value": "$appName", "style": "headline", "weight": "bold" } },
+                { "type": "spacer", "props": { "height": 4 } },
+                { "type": "text", "props": { "value": "$tagline", "color": "$textSecondary", "align": "center" } }
+              ]
+            },
+            { "type": "spacer", "props": { "height": 40 } },
+            {
+              "type": "card",
+              "props": { "padding": 24 },
+              "children": [
+                { "type": "field_label", "props": { "text": "Phone Number" } },
+                { "type": "spacer", "props": { "height": 8 } },
+                { "type": "text_field", "props": { "key": "phone", "prefix": "+254 ", "hint": "712 345 678", "inputType": "phone" } },
+                { "type": "spacer", "props": { "height": 16 } },
+                { "type": "field_label", "props": { "text": "Security PIN" } },
+                { "type": "spacer", "props": { "height": 8 } },
+                { "type": "text_field", "props": { "key": "pin", "obscure": true, "maxLength": 4, "hint": "••••", "inputType": "number", "prefixIcon": "lock" } },
+                { "type": "spacer", "props": { "height": 24 } },
+                { "type": "button", "props": { "label": "Sign In", "icon": "arrow_forward", "action": { "type": "authenticate" } } }
+              ]
+            },
+            { "type": "spacer", "props": { "height": 20 } },
+            {
+              "type": "center",
+              "children": [
+                { "type": "text", "props": { "value": "— or use biometrics —", "style": "caption", "color": "$textDisabled" } },
+                { "type": "spacer", "props": { "height": 12 } },
+                { "type": "biometric_button", "props": { "action": { "type": "authenticate" } } }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    "home": {
+      "id": "home",
+      "showAppBar": false,
+      "components": [
+        {
+          "type": "list_view",
+          "props": { "padding": 0 },
+          "children": [
+            { "type": "dashboard_header", "props": { "name": "Candice Ngundo", "initials": "CN" } },
+            { "type": "spacer", "props": { "height": 20 } },
+            { "type": "account_carousel", "props": {} },
+            { "type": "spacer", "props": { "height": 28 } },
+            {
+              "type": "section",
+              "props": { "title": "Quick Actions", "actionLabel": "View All" },
+              "children": [
+                {
+                  "type": "quick_action_grid",
+                  "props": {
+                    "actions": [
+                      { "label": "Send",    "icon": "send",        "color": "#3B82F6", "action": { "type": "navigate", "screen": "send_money" } },
+                      { "label": "Airtime", "icon": "smartphone",  "color": "#22C55E", "action": { "type": "navigate", "screen": "airtime"    } },
+                      { "label": "Bills",   "icon": "bolt",        "color": "#F59E0B", "action": { "type": "navigate", "screen": "paybill"    } },
+                      { "label": "More",    "icon": "more_horiz",  "color": "#94A3B8", "action": { "type": "navigate", "screen": "payments"   } }
+                    ]
+                  }
+                }
+              ]
+            },
+            { "type": "spacer", "props": { "height": 24 } },
+            {
+              "type": "section",
+              "props": { "title": "Recent Activity", "actionLabel": "History" },
+              "children": [
+                { "type": "transaction_list", "props": { "limit": 5 } }
+              ]
+            },
+            { "type": "spacer", "props": { "height": 16 } }
+          ]
+        }
+      ]
+    },
+
+    "payments": {
+      "id": "payments",
+      "showAppBar": false,
+      "components": [
+        {
+          "type": "list_view",
+          "props": { "padding": 20 },
+          "children": [
+            { "type": "spacer", "props": { "height": 24 } },
+            { "type": "text", "props": { "value": "Payments", "style": "headline", "weight": "bold" } },
+            { "type": "text", "props": { "value": "Send money and pay bills easily", "color": "$textSecondary" } },
+            { "type": "spacer", "props": { "height": 20 } },
+            { "type": "service_tile", "props": { "icon": "send",       "label": "Send Money", "description": "To any phone number",        "color": "#3B82F6", "action": { "type": "navigate", "screen": "send_money" } } },
+            { "type": "service_tile", "props": { "icon": "business",   "label": "Paybill",    "description": "Utilities, business, etc.",  "color": "#F59E0B", "action": { "type": "navigate", "screen": "paybill"    } } },
+            { "type": "service_tile", "props": { "icon": "storefront", "label": "Buy Goods",  "description": "Pay at a shop / till",       "color": "#22C55E", "action": { "type": "navigate", "screen": "buy_goods"  } } },
+            { "type": "service_tile", "props": { "icon": "smartphone", "label": "Airtime",    "description": "Safaricom, Airtel, Telkom",  "color": "#A855F7", "action": { "type": "navigate", "screen": "airtime"    } } }
+          ]
+        }
+      ]
+    },
+
+    "send_money": {
+      "id": "send_money",
+      "title": "Send Money",
+      "showAppBar": true,
+      "components": [
+        {
+          "type": "form",
+          "props": {
+            "submitLabel": "Continue",
+            "onSubmit": { "type": "navigate", "screen": "confirm_payment" },
+            "fields": [
+              { "key": "recipient", "label": "Recipient Phone Number", "hint": "0712 345 678", "inputType": "phone",  "prefixIcon": "smartphone", "required": true },
+              { "key": "amount",    "label": "Amount (KES)",           "hint": "0.00",          "inputType": "number", "style": "large",            "required": true  }
+            ]
+          }
+        }
+      ]
+    },
+
+    "paybill": {
+      "id": "paybill",
+      "title": "Paybill",
+      "showAppBar": true,
+      "components": [
+        {
+          "type": "form",
+          "props": {
+            "submitLabel": "Continue",
+            "onSubmit": { "type": "navigate", "screen": "confirm_payment" },
+            "fields": [
+              { "key": "paybill_no",  "label": "Paybill Number",  "hint": "e.g. 888888",  "inputType": "number", "required": true },
+              { "key": "account_no",  "label": "Account Number",  "hint": "e.g. 12345678",                       "required": true },
+              { "key": "amount",      "label": "Amount (KES)",    "hint": "0.00",          "inputType": "number", "required": true, "style": "large" }
+            ]
+          }
+        }
+      ]
+    },
+
+    "buy_goods": {
+      "id": "buy_goods",
+      "title": "Buy Goods",
+      "showAppBar": true,
+      "components": [
+        {
+          "type": "form",
+          "props": {
+            "submitLabel": "Continue",
+            "onSubmit": { "type": "navigate", "screen": "confirm_payment" },
+            "fields": [
+              { "key": "till_no", "label": "Till Number",   "hint": "e.g. 123456", "inputType": "number", "required": true },
+              { "key": "amount",  "label": "Amount (KES)",  "hint": "0.00",         "inputType": "number", "required": true, "style": "large" }
+            ]
+          }
+        }
+      ]
+    },
+
+    "airtime": {
+      "id": "airtime",
+      "title": "Buy Airtime",
+      "showAppBar": true,
+      "components": [
+        {
+          "type": "form",
+          "props": {
+            "submitLabel": "Buy Now",
+            "onSubmit": { "type": "navigate", "screen": "confirm_payment" },
+            "fields": [
+              { "key": "phone",  "label": "Phone Number",  "hint": "0712 345 678", "inputType": "phone",  "required": true },
+              { "key": "amount", "label": "Amount (KES)",  "hint": "0.00",          "inputType": "number", "required": true, "style": "large" }
+            ]
+          }
+        }
+      ]
+    },
+
+    "confirm_payment": {
+      "id": "confirm_payment",
+      "title": "Confirm Payment",
+      "showAppBar": true,
+      "components": [
+        {
+          "type": "list_view",
+          "props": { "padding": 20 },
+          "children": [
+            { "type": "text", "props": { "value": "Please review the details below", "color": "$textSecondary", "align": "center" } },
+            { "type": "spacer", "props": { "height": 20 } },
+            {
+              "type": "card",
+              "props": { "padding": 20 },
+              "children": [
+                { "type": "detail_row", "props": { "label": "Recipient", "value": "John Doe (+254 712 345 678)" } },
+                { "type": "detail_row", "props": { "label": "Amount",    "value": "KES 2,500.00" } },
+                { "type": "detail_row", "props": { "label": "Fee",       "value": "KES 35.00" } },
+                { "type": "divider",    "props": {} },
+                { "type": "detail_row", "props": { "label": "Total", "value": "KES 2,535.00", "bold": true, "valueColor": "$primary" } },
+                { "type": "spacer", "props": { "height": 16 } },
+                { "type": "warning_box", "props": { "text": "Ensure recipient details are correct. Transactions cannot be reversed easily." } },
+                { "type": "spacer", "props": { "height": 20 } },
+                {
+                  "type": "row",
+                  "children": [
+                    { "type": "outlined_button", "props": { "label": "Back",          "flex": 1, "action": { "type": "go_back" } } },
+                    { "type": "spacer",          "props": { "width": 12 } },
+                    { "type": "button",          "props": { "label": "Confirm & Pay", "flex": 2, "action": { "type": "navigate", "screen": "payment_success" } } }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    "payment_success": {
+      "id": "payment_success",
+      "showAppBar": false,
+      "components": [
+        {
+          "type": "success_view",
+          "props": {
+            "title": "Payment Successful!",
+            "reference": "Ref: KJN-88293-XPL",
+            "amount": "KES 2,535.00",
+            "doneAction": { "type": "navigate_tab", "tab": 0 }
+          }
+        }
+      ]
+    },
+
+    "history": {
+      "id": "history",
+      "showAppBar": false,
+      "components": [
+        {
+          "type": "list_view",
+          "props": { "padding": 20 },
+          "children": [
+            { "type": "spacer", "props": { "height": 24 } },
+            { "type": "text", "props": { "value": "Transaction History", "style": "headline", "weight": "bold" } },
+            { "type": "spacer", "props": { "height": 16 } },
+            { "type": "transaction_list", "props": { "limit": 20 } }
+          ]
+        }
+      ]
+    },
+
+    "profile": {
+      "id": "profile",
+      "showAppBar": false,
+      "components": [
+        {
+          "type": "list_view",
+          "props": { "padding": 20 },
+          "children": [
+            { "type": "spacer", "props": { "height": 32 } },
+            {
+              "type": "center",
+              "children": [
+                { "type": "avatar",  "props": { "initials": "CN", "size": 88 } },
+                { "type": "spacer",  "props": { "height": 14 } },
+                { "type": "text",    "props": { "value": "Candice Ngundo",    "style": "headline", "weight": "bold" } },
+                { "type": "spacer",  "props": { "height": 4 } },
+                { "type": "text",    "props": { "value": "+254 712 345 678",  "color": "$textSecondary" } }
+              ]
+            },
+            { "type": "spacer", "props": { "height": 32 } },
+            { "type": "section_label",  "props": { "text": "Account" } },
+            { "type": "settings_tile",  "props": { "icon": "person",        "label": "Edit Profile" } },
+            { "type": "settings_tile",  "props": { "icon": "lock",          "label": "Change PIN" } },
+            { "type": "settings_tile",  "props": { "icon": "fingerprint",   "label": "Biometric Auth", "toggle": true } },
+            { "type": "spacer", "props": { "height": 12 } },
+            { "type": "section_label",  "props": { "text": "Preferences" } },
+            { "type": "settings_tile",  "props": { "icon": "notifications", "label": "Notifications" } },
+            { "type": "settings_tile",  "props": { "icon": "palette",       "label": "Theme" } },
+            { "type": "spacer", "props": { "height": 12 } },
+            { "type": "section_label",  "props": { "text": "Support" } },
+            { "type": "settings_tile",  "props": { "icon": "phone",         "label": "Call Support" } },
+            { "type": "settings_tile",  "props": { "icon": "email",         "label": "Email Support" } },
+            { "type": "settings_tile",  "props": { "icon": "help",          "label": "FAQ" } },
+            { "type": "spacer", "props": { "height": 20 } },
+            { "type": "engine_info_card", "props": {} },
+            { "type": "spacer", "props": { "height": 16 } },
+            { "type": "outlined_button", "props": { "label": "Sign Out", "icon": "logout", "danger": true, "action": { "type": "logout" } } },
+            { "type": "spacer", "props": { "height": 32 } }
+          ]
+        }
+      ]
+    }
+  }
+}

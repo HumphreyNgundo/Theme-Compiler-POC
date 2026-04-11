@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
-import '../services/theme_compiler_service.dart';
+import '../providers/engine_provider.dart';
+import '../engine/app_engine.dart';
 
-/// The first screen the user sees.
-///
-/// Triggers [ThemeProvider.compileTheme] which streams compilation progress
-/// through [ThemeCompilerService]. Each step is rendered as a console-style
-/// log line, mirroring the way a build system reports its pipeline stages.
-///
-/// Once compilation is done the provider transitions to [AppState.login].
+/// Shown while [AppEngine] streams its compile pipeline.
+/// Renders a terminal-style console with per-step icons and a progress bar.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -22,36 +16,38 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Kick off the compile pipeline after the first frame so the splash UI
-    // is rendered before the async work starts.
+    // Start initialization after the first frame so the provider is available.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ThemeProvider>().compileTheme();
+      context.read<EngineProvider>().initialize();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, provider, _) {
-        final bg = provider.config.splashConfig.backgroundColor;
-
+    return Consumer<EngineProvider>(
+      builder: (context, engine, _) {
         return Scaffold(
-          backgroundColor: bg,
+          backgroundColor: const Color(0xFF0A0E1A),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Spacer(flex: 2),
-                  _AppLogo(
-                    name: provider.config.displayName,
-                    tagline: provider.config.tagline,
-                  ),
+                  // ── Logo / brand ──────────────────────────────────────────
+                  _Logo(name: 'Kijani Finance'),
+                  const SizedBox(height: 48),
+                  // ── Console header ────────────────────────────────────────
+                  _ConsoleHeader(progress: engine.progress),
+                  const SizedBox(height: 16),
+                  // ── Step list ─────────────────────────────────────────────
+                  _StepList(steps: engine.steps),
                   const Spacer(flex: 3),
-                  _CompilerConsole(steps: provider.compileSteps),
-                  const SizedBox(height: 20),
-                  _ProgressBar(progress: provider.compileProgress),
-                  const SizedBox(height: 32),
+                  // ── Progress bar ──────────────────────────────────────────
+                  _ProgressBar(progress: engine.progress),
+                  const SizedBox(height: 12),
+                  _StatusText(progress: engine.progress),
                 ],
               ),
             ),
@@ -62,151 +58,137 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// ── App logo + name ────────────────────────────────────────────────────────────
+// ── Sub-widgets ───────────────────────────────────────────────────────────────
 
-class _AppLogo extends StatelessWidget {
+class _Logo extends StatelessWidget {
+  const _Logo({required this.name});
   final String name;
-  final String tagline;
-
-  const _AppLogo({required this.name, required this.tagline});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       children: [
         Container(
-          width: 84,
-          height: 84,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.18),
-            borderRadius: BorderRadius.circular(22),
+            color: const Color(0xFF22C55E),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(
-            Icons.account_balance_wallet_rounded,
-            color: Colors.white,
-            size: 46,
-          ),
-        )
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .shimmer(duration: 2.seconds, color: Colors.white.withOpacity(0.3)),
-        const SizedBox(height: 18),
-        Text(
-          name,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.3,
-          ),
-        ).animate().fadeIn(duration: 600.ms, delay: 200.ms),
-        const SizedBox(height: 6),
-        Text(
-          tagline,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.72),
-            fontSize: 14,
-          ),
-        ).animate().fadeIn(duration: 600.ms, delay: 400.ms),
+          child: const Icon(Icons.terminal_rounded, color: Colors.white, size: 24),
+        ),
+        const SizedBox(width: 14),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const Text(
+              'Engine v1.0',
+              style: TextStyle(
+                color: Color(0xFF6B7280),
+                fontSize: 12,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
 }
 
-// ── Compiler console ───────────────────────────────────────────────────────────
-
-class _CompilerConsole extends StatelessWidget {
-  final List<CompileStep> steps;
-
-  const _CompilerConsole({required this.steps});
+class _ConsoleHeader extends StatelessWidget {
+  const _ConsoleHeader({required this.progress});
+  final double progress;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.28),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.terminal_rounded,
-                color: Colors.white.withOpacity(0.45),
-                size: 13,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'theme_compiler_service.dart',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.45),
-                  fontSize: 11,
-                  fontFamily: 'monospace',
-                ),
-              ),
-            ],
+    final pct = (progress * 100).toStringAsFixed(0);
+    return Row(
+      children: [
+        const Text(
+          '\$ compiling app bundle',
+          style: TextStyle(
+            color: Color(0xFF22C55E),
+            fontSize: 13,
+            fontFamily: 'monospace',
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(height: 12),
-          ...steps.map((s) => _StepRow(step: s)),
-        ],
-      ),
-    ).animate().fadeIn(duration: 400.ms, delay: 300.ms);
+        ),
+        const Spacer(),
+        Text(
+          '$pct%',
+          style: const TextStyle(
+            color: Color(0xFF6B7280),
+            fontSize: 12,
+            fontFamily: 'monospace',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StepList extends StatelessWidget {
+  const _StepList({required this.steps});
+  final List<CompileStep> steps;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: steps.map((s) => _StepRow(step: s)).toList(),
+    );
   }
 }
 
 class _StepRow extends StatelessWidget {
-  final CompileStep step;
-
   const _StepRow({required this.step});
+  final CompileStep step;
 
   @override
   Widget build(BuildContext context) {
+    final Widget icon;
+    final Color textColor;
+
+    if (step.isComplete) {
+      icon = const Icon(Icons.check_rounded, color: Color(0xFF22C55E), size: 16);
+      textColor = const Color(0xFF22C55E);
+    } else if (step.isActive) {
+      icon = const SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFBBF24)),
+        ),
+      );
+      textColor = Colors.white;
+    } else {
+      icon = const Icon(Icons.circle_outlined, color: Color(0xFF374151), size: 16);
+      textColor = const Color(0xFF6B7280);
+    }
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: step.isComplete
-                ? const Icon(Icons.check_circle, color: Color(0xFF2ECC71), size: 14)
-                    .animate()
-                    .scale(
-                      begin: const Offset(0, 0),
-                      end: const Offset(1, 1),
-                      duration: 200.ms,
-                    )
-                : step.isActive
-                    ? const SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.5,
-                          color: Colors.white70,
-                        ),
-                      )
-                    : Icon(
-                        Icons.radio_button_unchecked,
-                        color: Colors.white.withOpacity(0.2),
-                        size: 12,
-                      ),
-          ),
-          const SizedBox(width: 10),
+          SizedBox(width: 16, height: 16, child: icon),
+          const SizedBox(width: 12),
           Text(
             step.label,
             style: TextStyle(
-              color: step.isComplete
-                  ? Colors.white.withOpacity(0.6)
-                  : step.isActive
-                      ? Colors.white
-                      : Colors.white.withOpacity(0.25),
-              fontSize: 12,
+              color: textColor,
+              fontSize: 13,
               fontFamily: 'monospace',
-              fontWeight:
-                  step.isActive ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
         ],
@@ -215,37 +197,38 @@ class _StepRow extends StatelessWidget {
   }
 }
 
-// ── Progress bar ───────────────────────────────────────────────────────────────
-
 class _ProgressBar extends StatelessWidget {
-  final double progress;
-
   const _ProgressBar({required this.progress});
+  final double progress;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          '${(progress * 100).round()}%',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.65),
-            fontSize: 11,
-            fontFamily: 'monospace',
-          ),
-        ),
-        const SizedBox(height: 5),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.white.withOpacity(0.12),
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-            minHeight: 6,
-          ),
-        ),
-      ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: LinearProgressIndicator(
+        value: progress,
+        minHeight: 6,
+        backgroundColor: const Color(0xFF1F2937),
+        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
+      ),
+    );
+  }
+}
+
+class _StatusText extends StatelessWidget {
+  const _StatusText({required this.progress});
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final done = progress >= 1.0;
+    return Text(
+      done ? 'Build complete. Launching app...' : 'Building...',
+      style: const TextStyle(
+        color: Color(0xFF6B7280),
+        fontSize: 11,
+        fontFamily: 'monospace',
+      ),
     );
   }
 }
