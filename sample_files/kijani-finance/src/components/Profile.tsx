@@ -43,7 +43,7 @@ export function Profile({ onLogout }: ProfileProps) {
           </Button>
         </div>
         <div>
-          <h2 className="text-2xl font-bold">Candice Ngundo</h2>
+          <h2 className="text-2xl font-bold">Humphrey Ngundo</h2>
           <p className="text-muted-foreground font-medium">+254 712 345 678</p>
           <div className="mt-2">
             <span className="bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-primary/20">

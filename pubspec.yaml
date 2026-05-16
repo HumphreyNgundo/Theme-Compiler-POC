@@ -1,0 +1,30 @@
+name: theme_compiler_poc
+description: >
+  Flutter Theme Compiler POC — demonstrates a configurable approach where
+  theme/UI factors are fetched from an API at app init and compiled into
+  a Flutter ThemeData at runtime, before the app renders.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.2
+  http: ^1.2.2
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - mock_api/
